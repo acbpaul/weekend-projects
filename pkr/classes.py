@@ -41,7 +41,7 @@ Faceup:     {}
 """.format(self.rank, self.value, self.suit, self.symbol,
            self.short, self.suit_rank, self.face_up)
 
-
+##############################################################################
 
 # Instantiated object from a particular game deck. 
 # Has methods that can be applied to most card games
@@ -57,14 +57,14 @@ class Deck(object):
     def deal(self):
         return self.cards.pop(0)
     
-#TODO For some reason these are not working    
+    #Simple descriptors for deck object  
     def __str__(self):
         return "Deck of cards with {} cards remaining".format(len(self.cards))
     
     def __repr__(self):
-        return "Standard deck of cards with {} cards remaining".format(len(self.cards))
+        return self.cards
 
-
+##############################################################################
 
 # Standard deck for a game of Poker
 class PokerDeck(Deck):
@@ -95,7 +95,8 @@ class PokerDeck(Deck):
                 value = values[rank][1]
                 short = values[rank][0]+suits[suit][0]
                 self.cards.append(Card(rank, value, suit, symbol, suit_rank, short))
-            
+
+##############################################################################            
             
 # Standard deck for a game of Truco
 class TrucoDeck(Deck):
@@ -131,4 +132,22 @@ class TrucoDeck(Deck):
             
 # Contains the cards dealt from the deck to a player in a given game          
 class Hand(object):
-    pass
+    # Computes all possible initial hands combinations
+    self.pairs = []
+    for i in range(len(self.cards)-1):
+        for j in range(i+1,len(self.cards)):
+            self.pairs.append([self.cards[i],self.cards[j]])
+            
+    self.hands = []
+    for item in self.pairs:
+        self.hands.append(hand(item))
+        
+    self.hands = list(set(self.hands))
+    self.hands.sort()
+    
+    def pairingHands(self.pairs,self.hands):
+        self.short = dict
+        for pair in self.pairs:
+            for hand in self.hands:
+                if pair[0].value == pair[1].value and str(pair[0].value)*2 == hand:
+                    self.short 

@@ -7,271 +7,31 @@ Created on Mon Jun 27 16:19:54 2022
 
 
 #TODO Organize all these
+pokerHands = {'22','32o','32s','33','42o','42s','43o','43s','44','52o','52s',
+'53o','53s','54o','54s','55','62o','62s','63o','63s','64o','64s','65o','65s',
+'66','72o','72s','73o','73s','74o','74s','75o','75s','76o','76s','77','82o',
+'82s','83o','83s','84o','84s','85o','85s','86o','86s','87o','87s','88','92o',
+'92s','93o','93s','94o','94s','95o','95s','96o','96s','97o','97s','98o','98s',
+'99','T2o','T2s','T3o','T3s','T4o','T4s','T5o','T5s','T6o','T6s','T7o','T7s',
+'T8o','T8s','T9o','T9s','TT','J2o','J2s','J3o','J3s','J4o','J4s','J5o','J5s',
+'J6o','J6s','J7o','J7s','J8o','J8s','J9o','J9s','JTo','JTs','JJ',
+'Q2o','Q2s','Q3o','Q3s','Q4o','Q4s','Q5o','Q5s','Q6o','Q6s',
+'Q7o','Q7s','Q8o','Q8s','Q9o','Q9s','QTo','QTs','QJo','QJs','QQ',
+'K2o','K2s','K3o','K3s','K4o','K4s','K5o','K5s','K6o','K6s','K7o','K7s','K8o',
+'K8s','K9o','K9s','KTo','KTs''KJo','KJs','KQo','KQs','KK',
+'A2o','A2s','A3o','A3s','A4o','A4s','A5o','A5s','A6o','A6s','A7o','A7s',
+'A8o','A8s','A9o','A9s','ATo','ATs','AJo','AJs','AQo','AQs','AKo','AKs','AA'}
 
- # Computes all possible initial hands combinations
-        self.pairs = []
-        for i in range(len(self.cards)-1):
-            for j in range(i+1,len(self.cards)):
-                self.pairs.append([self.cards[i],self.cards[j]])
-                
-        self.hands = []
-        for item in self.pairs:
-            self.hands.append(hand(item))
-            
-        self.hands = list(set(self.hands))
-        self.hands.sort()
-        
-        def pairingHands(self.pairs,self.hands):
-            self.short = dict
-            for pair in self.pairs:
-                for hand in self.hands:
-                    if pair[0].value == pair[1].value and str(pair[0].value)*2 == hand:
-                        self.short 
+
+
+
+
                     
-        
-        
-        short = {'22':,
-                 '32o',
-                 '32s',
-                 '33',
-                 '42o',
-                 '42s',
-                 '43o',
-                 '43s',
-                 '44',
-                 '52o',
-                 '52s',
-                 '53o',
-                 '53s',
-                 '54o',
-                 '54s',
-                 '55',
-                 '62o',
-                 '62s',
-                 '63o',
-                 '63s',
-                 '64o',
-                 '64s',
-                 '65o',
-                 '65s',
-                 '66',
-                 '72o',
-                 '72s',
-                 '73o',
-                 '73s',
-                 '74o',
-                 '74s',
-                 '75o',
-                 '75s',
-                 '76o',
-                 '76s',
-                 '77',
-                 '82o',
-                 '82s',
-                 '83o',
-                 '83s',
-                 '84o',
-                 '84s',
-                 '85o',
-                 '85s',
-                 '86o',
-                 '86s',
-                 '87o',
-                 '87s',
-                 '88',
-                 '92o',
-                 '92s',
-                 '93o',
-                 '93s',
-                 '94o',
-                 '94s',
-                 '95o',
-                 '95s',
-                 '96o',
-                 '96s',
-                 '97o',
-                 '97s',
-                 '98o',
-                 '98s',
-                 '99',
-                 'A2o',
-                 'A2s',
-                 'A3o',
-                 'A3s',
-                 'A4o',
-                 'A4s',
-                 'A5o',
-                 'A5s',
-                 'A6o',
-                 'A6s',
-                 'A7o',
-                 'A7s',
-                 'A8o',
-                 'A8s',
-                 'A9o',
-                 'A9s',
-                 'AA',
-                 'AJo',
-                 'AJs',
-                 'AKo',
-                 'AKs',
-                 'AQo',
-                 'AQs',
-                 'ATo',
-                 'ATs',
-                 'J2o',
-                 'J2s',
-                 'J3o',
-                 'J3s',
-                 'J4o',
-                 'J4s',
-                 'J5o',
-                 'J5s',
-                 'J6o',
-                 'J6s',
-                 'J7o',
-                 'J7s',
-                 'J8o',
-                 'J8s',
-                 'J9o',
-                 'J9s',
-                 'JJ',
-                 'JTo',
-                 'JTs',
-                 'K2o',
-                 'K2s',
-                 'K3o',
-                 'K3s',
-                 'K4o',
-                 'K4s',
-                 'K5o',
-                 'K5s',
-                 'K6o',
-                 'K6s',
-                 'K7o',
-                 'K7s',
-                 'K8o',
-                 'K8s',
-                 'K9o',
-                 'K9s',
-                 'KJo',
-                 'KJs',
-                 'KK',
-                 'KQo',
-                 'KQs',
-                 'KTo',
-                 'KTs',
-                 'Q2o',
-                 'Q2s',
-                 'Q3o',
-                 'Q3s',
-                 'Q4o',
-                 'Q4s',
-                 'Q5o',
-                 'Q5s',
-                 'Q6o',
-                 'Q6s',
-                 'Q7o',
-                 'Q7s',
-                 'Q8o',
-                 'Q8s',
-                 'Q9o',
-                 'Q9s',
-                 'QJo',
-                 'QJs',
-                 'QQ',
-                 'QTo',
-                 'QTs',
-                 'T2o',
-                 'T2s',
-                 'T3o',
-                 'T3s',
-                 'T4o',
-                 'T4s',
-                 'T5o',
-                 'T5s',
-                 'T6o',
-                 'T6s',
-                 'T7o',
-                 'T7s',
-                 'T8o',
-                 'T8s',
-                 'T9o',
-                 'T9s',
-                 'TT'
-            }
-
-    def __repr__(self):
-        return "Standard deck of cards with {} cards remaining".format(len(self.cards))
-
-
-    
-    
-class Player(object, name = "villain"):
-    def __init__(self):
-        self.cards = []
-        self.stack = 1500
-        self.active = True
-
-        
-    def __repr__(self):
-        if self.cards == []:
-            return "Player without any cards dealt"
-        else:
-            return "{},{}".format(self.cards[0],self.cards[1])
-
-    def cardCount(self):
-        return len(self.cards)
-
-    def addCard(self, card):
-        self.cards.append(card)
-        
-    def hand(self):
-        try:
-            self.hand = Hand(self.cards)
-            return self.hand
-        except:
-            print("Player without any cards dealt")
 
 
 
         
-def hand(object):
-    cards = object
-    
-    if cards[0].value < cards[1].value:
-        aux = cards[0]
-        cards[0] = cards[1]
-        cards[1] = aux
-    
-    if cards[0].value == cards[1].value and cards[1].value >= 10:
-        hand = str(cards[0].short) + str(cards[1].short)
-        
-    elif cards[0].value == cards[1].value and cards[0].value >= 10 and cards[1].value < 10:
-        hand = str(cards[0].short) + str(cards[1].value)
-        
-    elif cards[0].value == cards[1].value and cards[0].value < 10 and cards[1].value < 10:
-        hand = str(cards[0].value) + str(cards[1].value)
-        
-    elif cards[0].suit == cards[1].suit and cards[1].value >= 10:
-        hand = str(cards[0].short) + str(cards[1].short) + "s"
-        
-    elif cards[0].suit == cards[1].suit and cards[0].value >= 10 and cards[1].value < 10:
-        hand = str(cards[0].short) + str(cards[1].value) + "s"
-        
-    elif cards[0].suit == cards[1].suit and cards[0].value < 10 and cards[1].value < 10:
-        hand = str(cards[0].value) + str(cards[1].value) + "s"
-        
-    elif cards[0].suit != cards[1].suit and cards[1].value >= 10:
-        hand = str(cards[0].short) + str(cards[1].short) + "o"
-        
-    elif cards[0].suit != cards[1].suit and cards[0].value >= 10 and cards[1].value < 10:
-        hand = str(cards[0].short) + str(cards[1].value) + "o"
-        
-    else:
-        hand = str(cards[0].value) + str(cards[1].value) + "o"
 
-    return hand
 
 
 
