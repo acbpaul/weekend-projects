@@ -25,13 +25,14 @@ class Card(object):
     # Only shows card values if face_up = True
     def __str__(self):
         if self.face_up:
-            return "{} of {} ({})".format(self.rank, self.suit, self.short)
+            return "{} {} of {}".format(self.short, self.rank, self.suit)
         else:
             return "Card face down!"
 
     # Show values regardless of face up value (debugging purposes only)  
     def __repr__(self):
-        return """Rank:       {},
+        return """
+Rank:       {},
 Value:      {},
 Suit:       {}, 
 Symbol:     {}, 
@@ -39,13 +40,13 @@ Suit Rank:  {},
 Short:      {},
 Faceup:     {}
 """.format(self.rank, self.value, self.suit, self.symbol,
-           self.short, self.suit_rank, self.face_up)
+           self.suit_rank, self.short, self.face_up)
 
 ##############################################################################
 
 # Instantiated object from a particular game deck. 
 # Has methods that can be applied to most card games
-class Deck(object):
+class Dealer(object):
     
     # Shuffles the deck a random ammount of times for good measure
     def shuffle(self, shuffles=random.randint(2,8)):
@@ -55,19 +56,21 @@ class Deck(object):
     
     # Deals a card from the top (last card in the list)
     def deal(self):
-        return self.cards.pop(0)
+        return self.cards.pop()
     
     #Simple descriptors for deck object  
     def __str__(self):
         return "Deck of cards with {} cards remaining".format(len(self.cards))
     
     def __repr__(self):
-        return self.cards
+        for card in self.cards: print(card)
 
 ##############################################################################
 
+
+
 # Standard deck for a game of Poker
-class PokerDeck(Deck):
+class PokerDeck(Dealer):
     def __init__(self):
         
         values = {"Two":    ("2", 2),
@@ -96,7 +99,22 @@ class PokerDeck(Deck):
                 short = values[rank][0]+suits[suit][0]
                 self.cards.append(Card(rank, value, suit, symbol, suit_rank, short))
 
-##############################################################################            
+##############################################################################    
+
+class PokerTable(Dealer)
+    pass
+
+
+
+
+
+
+
+
+
+
+
+        
             
 # Standard deck for a game of Truco
 class TrucoDeck(Deck):

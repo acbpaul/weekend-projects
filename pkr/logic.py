@@ -5,6 +5,24 @@ Created on Mon Jun 27 16:19:54 2022
 @author: adrpaul
 """
 
+# Defines blind tier (0-9)
+
+
+# Defines blinds structure (BB/SB)
+blindLvl = [(20,10),(30,15),(40,20),(50,25),(60,30),
+              (80,40),(100,50),(120,60),(150,75),(200,100)]
+
+# Defines blind tier (0-9)
+tier = 0
+
+# Defines the time needed for a tier change
+speed = {"Regular": 360,"Turbo": 180,"Hyper":120}
+
+
+# Defines player's initial stack
+stack = 500
+
+
 
 #TODO Organize all these
 pokerHands = {'22','32o','32s','33','42o','42s','43o','43s','44','52o','52s',
@@ -20,7 +38,7 @@ pokerHands = {'22','32o','32s','33','42o','42s','43o','43s','44','52o','52s',
 'K2o','K2s','K3o','K3s','K4o','K4s','K5o','K5s','K6o','K6s','K7o','K7s','K8o',
 'K8s','K9o','K9s','KTo','KTs''KJo','KJs','KQo','KQs','KK',
 'A2o','A2s','A3o','A3s','A4o','A4s','A5o','A5s','A6o','A6s','A7o','A7s',
-'A8o','A8s','A9o','A9s','ATo','ATs','AJo','AJs','AQo','AQs','AKo','AKs','AA'}
+'A8o','A8s','A9o','A9s','ATo','ATs','AJo','AJs','AQo','AQs','AKo','AKs', 'AA'}
 
 
 
