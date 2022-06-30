@@ -43,5 +43,3 @@ if __name__ == "__main__":
 from binance.client import Client
 
 client = Client(api_key,api_secret)
-
-P[56KJCY HUUA 12.........................ret5rftklllllllllllli9uuuuuuuuuuuuuuuuuuuuioe8rxsmw             7\\\\7]
