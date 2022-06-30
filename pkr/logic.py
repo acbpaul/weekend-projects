@@ -1,30 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Jun 27 16:19:54 2022
-
 @author: adrpaul
 """
 
-# Defines blind tier (0-9)
-
-
-# Defines blinds structure (BB/SB)
-blindLvl = [(20,10),(30,15),(40,20),(50,25),(60,30),
-              (80,40),(100,50),(120,60),(150,75),(200,100)]
-
-# Defines blind tier (0-9)
-tier = 0
-
-# Defines the time needed for a tier change
-speed = {"Regular": 360,"Turbo": 180,"Hyper":120}
-
-
-# Defines player's initial stack
-stack = 500
+from itertools import combinations
 
 
 
-#TODO Organize all these
+# All possible initial hand combinations (decide to play or not)
 pokerHands = {'22','32o','32s','33','42o','42s','43o','43s','44','52o','52s',
 '53o','53s','54o','54s','55','62o','62s','63o','63s','64o','64s','65o','65s',
 '66','72o','72s','73o','73s','74o','74s','75o','75s','76o','76s','77','82o',
@@ -44,97 +28,7 @@ pokerHands = {'22','32o','32s','33','42o','42s','43o','43s','44','52o','52s',
 
 
 
-                    
 
-
-
-        
-
-
-
-
-
-class PokerScorer(object):
-    def __init__(self, cards):
-        # Number of cards
-        if not len(cards) == 5:
-            return "Error: Wrong number of cards"
-
-        self.cards = cards
-
-    def flush(self):
-        suits = [card.suit for card in self.cards]
-        if len( set(suits) ) == 1:
-            return True
-        return False
-
-    def straight(self):
-        values = [card.value for card in self.cards]
-        values.sort()
-
-        if not len( set(values)) == 5:
-            return False 
-
-        if values[4] == 14 and values[0] == 2 and values[1] == 3 and values[2] == 4 and values[3] == 5:
-            return 5
-
-        else:
-            if not values[0] + 1 == values[1]: return False 
-            if not values[1] + 1 == values[2]: return False
-            if not values[2] + 1 == values[3]: return False
-            if not values[3] + 1 == values[4]: return False
-
-        return values[4]
-
-    def highCard(self):
-        values = [card.value for card in self.cards]
-        highCard = None
-        for card in self.cards:
-            if highCard is None:
-                highCard = card
-            elif highCard.value < card.value: 
-                highCard=card
-
-        return highCard
-
-    def highestCount(self):
-        count = 0
-        values = [card.value for card in self.cards]
-        for value in values:
-            if values.count(value) > count:
-                count = values.count(value)
-
-        return count
-
-    def pairs(self):
-        pairs = []
-        values = [card.value for card in self.cards]
-        for value in values:
-            if values.count(value) == 2 and value not in pairs:
-                pairs.append(value)
-
-        return pairs
-        
-    def fourKind(self):
-        values = [card.value for card in self.cards]
-        for value in values:
-            if values.count(value) == 4:
-                return True
-
-    def fullHouse(self):
-        two = False
-        three = False
-    
-        values = [card.value for card in self.cards]
-        if values.count(values) == 2:
-            two = True
-        elif values.count(values) == 3:
-            three = True
-
-        if two and three:
-            return True
-
-        return False
 
 
 
@@ -147,28 +41,9 @@ class PokerSettings():
                 "Turbo": 300,
                 "Hyper": 180 }
     
-        self.blinds = [[20,10,0],
-                  [30,15,0],
-                  [50,25,0],
-                  [100,50,0],
-                  [150,75,0],
-                  [200,100,0],
-                  [250,125,25],
-                  [300,150,25],
-                  [400,200,50],
-                  [600,300,50],
-                  [800,400,75],
-                  [1000,500,100],
-                  [1200,600,125],
-                  [1600,800,150],
-                  [2000,1000,200],
-                  [3000,1500,300],
-                  [4000,2000,400],
-                  [5000,2500,500],
-                  [6000,3000,600],
-                  [7000,3500,700]]
+
         
-        self.maxPlayers = 9
+        
     
 
         
