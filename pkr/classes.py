@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jun 27 16:17:13 2022
-@author: adrpaul
+All classes used in the Poker Match simulator
 """
-
 
 import random
 from itertools import combinations
@@ -11,20 +9,21 @@ import functions as f
 
 
 class PokerSettings():
+    # Defines most settings needed to initialize a Poker Match
     def __init__(self):
         # Defines blinds structure (BB/SB)
         self.blindLvl = [(20,10),(30,15),(40,20),(50,25),(60,30),(80,40),(100,50),
                     (120,60),(150,75),(180,90),(210,105),(300,150),(400,200)]
         
+        # Blind structure with antes (BB/SB/Ante) -- won't use for now
+        # self.blinds = [[20,10,0],[30,15,0],[50,25,0],[100,50,0],[150,75,0],
+        #           [200,100,0],[250,125,25],[300,150,25],[400,200,50],
+        #           [600,300,50],[800,400,75],[1000,500,100],[1200,600,125],
+        #           [1600,800,150],[2000,1000,200],[3000,1500,300],
+        #           [4000,2000,400],[5000,2500,500],[6000,3000,600],
+        #           [7000,3500,700]]
         
-        self.blinds = [[20,10,0],[30,15,0],[50,25,0],[100,50,0],[150,75,0],
-                  [200,100,0],[250,125,25],[300,150,25],[400,200,50],
-                  [600,300,50],[800,400,75],[1000,500,100],[1200,600,125],
-                  [1600,800,150],[2000,1000,200],[3000,1500,300],
-                  [4000,2000,400],[5000,2500,500],[6000,3000,600],
-                  [7000,3500,700]]
-        
-        # Defines blind tier (0-12)
+        # Defines blind tier to start a Poker Match (0-12)
         self.tier = 0
         
         # Defines the time needed for a tier change
@@ -39,14 +38,16 @@ class PokerSettings():
         # Defines max number of players
         self.maxPlayers = 2
         
+        # Defines time spent in a round to deal cards
         self.dealTime = 5
         
+        # Defines time needed by the players to make a decision
         self.decisionTime = random.randint(5,15)
         
 ##############################################################################
 
-# Card class with attributes that a card might hold to a multitude of games
 class Card(object):
+# Card class with attributes that a card might hold to a multitude of games
     
     # Innate attributes to a single card
     def __init__(self, rank, value, suit, symbol, suit_rank, short):
@@ -81,18 +82,17 @@ class Card(object):
 
 ##############################################################################
 
-# Instantiated object from a particular game deck. 
-# Has methods that can be applied to most card games
 class Deck(object):
-    
+# Instantiated object from a particular game deck. 
+# Has methods that can be applied to most card games   
     
     # Shuffles the deck a random ammount of times for good measure
     def shuffle(self, shuffles=random.randint(5,10)):
         for i in range(shuffles):
             random.shuffle(self.cards)
-        print("Deck Shuffled!")
+        # print("Deck Shuffled!")
     
-    # Deals a card from the top (last card in the list)
+    # Deals a card from the top (last card in the deck)
     def deal(self):
         return self.cards.pop()
     
@@ -107,7 +107,7 @@ class Deck(object):
 ##############################################################################
 
 class PokerPlayer():
-
+# Player object with defined actions a player might take in a Poker Match
 
     def __init__(self, stack):
 
@@ -117,63 +117,60 @@ class PokerPlayer():
         self.button = False
         self.bet = 0
 
+    # Number of cards dealt to the player
     def cardCount(self):
         return len(self.cards)
 
+    # Used with deck.deal() to receive a card from the deck
     def addCard(self, card):
         self.cards.append(card)
         
-    def paySmallBlind(self,sb):
-        if sb > self.stack: 
-            sb = self.stack
-            self.stack -= self.stack
-            return sb
-        else:
-            self.stack -= sb
-            return sb
-        
-    def payBigBlind(self, bb):
-        if bb > self.stack: 
-            bb = self.stack
+    # Pay the initial fee at the start of the round
+    def payBlind(self,blind):
+        if blind > self.stack: 
             self.bet = self.stack
-            self.stack -= self.stack
-            return bb
+            self.stack -= self.bet
+            return self.bet
         else:
-            self.stack -= bb
-            self.bet = bb
-            return bb
-        
+            self.stack -= blind
+            self.bet += blind
+            return self.bet      
+    
+    # Bets all remaining chips
     def betAllIn(self):
         bet = self.stack
         self.bet += bet
         self.stack -= bet
-        return self.stack
+        return bet
     
+    # Calls a bet from another player
     def payBet(self,bet):
         if bet > self.stack: 
             bet = self.stack
             self.bet += bet
-            self.stack -= self.stack
+            self.stack -= bet
             return bet
         else:
             self.stack -= bet
             self.bet += bet
             return bet
-        
+    
+    # Adds pot chips to own stack at the end of a round
     def winPot(self,pot):
         self.stack += pot
-        self.bet = 0
-        
-    def losePot(self):
-        self.bet = 0
+        self.cards = []
     
-
-            
+    # Just loses the cards at hand =(
+    def losePot(self):
+        self.cards = []
+        
+        
+    # Defines a short notation on the hand received ('AKs','TJo',e.g.)        
     def hand(self):
         
         if self.cards == []: print("Player without any cards dealt")
         if len(self.cards) == 2:
-            # Organizing cards in hand by card value
+            # Organizing cards in hand by card value (could've used a lambda...)
             if self.cards[0].value < self.cards[1].value:
                 aux = self.cards[0]
                 self.cards[0] = self.cards[1]
@@ -190,7 +187,7 @@ class PokerPlayer():
                 return hand
 
 
-    
+    # To be used with any 2 cards in hand... or none
     def __str__(self):
         if self.cards == []:
             return "Player without any cards dealt!"
@@ -199,8 +196,9 @@ class PokerPlayer():
         
 ##############################################################################
 
-# Standard deck for a game of Poker
 class PokerDeck(Deck):
+# Standard deck for a game of Poker
+
     def __init__(self):
         
         values = {"Two":    ("2", 2),
@@ -228,10 +226,13 @@ class PokerDeck(Deck):
                 value = values[rank][1]
                 short = values[rank][0]+suits[suit][0]
                 self.cards.append(Card(rank, value, suit, symbol, suit_rank, short))
-
+                
+    
 ##############################################################################    
 
 class checkHand(object):
+# Point system to select the best hand (out of all 5 cards combinations out of 7)
+# Also used to compare player's best hand to find the round's winner
     
     def __init__(self, cards):
         self.cards = cards
@@ -239,7 +240,6 @@ class checkHand(object):
         self.fours, self.foursVal = f.fours(self.cards)
         self.flush = f.flush(self.cards)
         self.straight = f.straight(self.cards)
-        self.highCard = self.cards[0].value
         if self.flush == True and self.straight == True:
             self.straightFlush = True
         else: self.straightFlush = False
@@ -250,9 +250,9 @@ class checkHand(object):
         else: self.fullHouse = False
         self.vals = [card.value for card in cards]
         
-        
+        # Assigned points to a hand based on its rankings
         self.power = 0        
-        self.power += sum([card.value for card in self.cards])
+        self.power += sum(self.vals)
         self.power += sum([val*20 for val in self.pairsVal])
         self.power += self.threesVal*300
         self.power += self.straight*5000
@@ -260,6 +260,10 @@ class checkHand(object):
         self.power += self.fullHouse*6000
         self.power += self.foursVal*10000
         self.power += self.straightFlush*150000
+        
+        
+    def __str__(self):
+        "{}, {}".format(self.cards, self.power)
         
         
  

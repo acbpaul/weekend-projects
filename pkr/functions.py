@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Jul  6 22:29:04 2022
+All methods used in the Poker Match Simulator
 
-@author: Adriano
+The way they are now, it is not possible to have more than 2
+simultaneous players in a match (so far, there is no need to expand on it too)
 """
 
 from itertools import combinations
@@ -11,16 +12,26 @@ import random
 
 
 def checkHand(table,hand):
-     cards = []
+    """ 
+    This method iterates all possible combinations between the cards dealt
+    to a player and those at the table.
+    
+    From the iteration, it returns the best 5-card hand combination along
+    with the points used to identify this hand as the best one available.
+    """
      
+    cards = []
      
      for card in table:  cards.append(card)
-     for card in hand:   cards.append(hand)
+     for card in hand:   cards.append(card)
+    
+     # For some reason, the line below does not work when called, 
+     # so I'll leave it off for now
      
-     cards = sorted(cards, key= lambda x: x.value, reverse=True)
+     # cards = sorted(cards, key= lambda x: x.value, reverse=True)
      hands = list(combinations(cards,5))
      
-     checks = [c.checkHand(hand) for hand in hands]
+     checks = [c.checkHand(hand) for hand in hands] 
      
      best = [check.power for check in checks]
      best = best.index(max(best))
@@ -29,14 +40,26 @@ def checkHand(table,hand):
 
 
 
-def compareHand(object):
-    pass       
+def compareHand(scoreP0,scoreP1):
+    """
+    This method compares the returns from the previous checkHand() method
+    to evaluate the winner of a round (or a split pot, in case of
+                                       common cards for both players)
+    """
+    if scoreP0[1] > scoreP1[1]: return 0, scoreP0[0]
+    elif scoreP0[1] == scoreP1[1]: return 'split', scoreP0[0]
+    return 1, scoreP1[0]
         
     
 
         
 
 def createPlayers(settings):
+    """
+    Creates players according to the settings from PokerSettings class.
+    So far, there is no need to create more than 2 players
+    """
+    
     nrPlayers = settings.maxPlayers
     players = [c.PokerPlayer(settings.stack) for player in range(nrPlayers)]
 
@@ -45,10 +68,16 @@ def createPlayers(settings):
     return players
 
 
+def initiateTable():
+    pass
         
     
     
 def play(settings, players):
+    """
+    The heart and soul of the game model!
+    """
+    # Initiate table ----------------------------------------------------
     deck = c.PokerDeck()
     deck.shuffle()
     
@@ -56,24 +85,27 @@ def play(settings, players):
     discard = []
     pot = 0
     
+    # Charges blinds according to the button ----------------------------
     for i in range(len(players)):
         if players[i].button == True:  
-            pot += players[i].payBigBlind()
-            button = 1
+            pot += players[i].payBlind(settings.blindLvl[settings.tier][0])
+
         else:
-            pot += players[i].paySmallBlind()
-            
+            pot += players[i].payBlind(settings.blindLvl[settings.tier][1])
+
+    # Deals 2 cards to each player accordingly ---------------------------        
     players[0].addCard(deck.deal())
     players[1].addCard(deck.deal())
     players[0].addCard(deck.deal())
     players[1].addCard(deck.deal())
             
-    # Player input
+    # TO-DO Player input (no bets for now) --------------------------------------
     # Bet All in?
     
     
+    
 
-    # Deal Cards for the Flop
+    # Deal Cards for the Flop ----------------------------------------------
     discard.append(deck.deal())
     table.append(deck.deal())
     table.append(deck.deal())
@@ -82,26 +114,58 @@ def play(settings, players):
     table[1].face_up = True
     table[2].face_up = True
     
-    # Deal Card for the Turn
+    # Deal Card for the Turn -----------------------------------------------
     discard.append(deck.deal())
     table.append(deck.deal())
     table[3].face_up = True
     
-    # Deal Card for the River
+    # Deal Card for the River ----------------------------------------------
     discard.append(deck.deal())
     table.append(deck.deal())
     table[4].face_up = True
     
-
-    # scoreP1 = f.checkHand(table, players[0].cards)
-    # scoreP2 = f.checkHand(table, players[1].cards)
+    # Selects the best hand from each player -------------------------------
+    scoreP0 = checkHand(table, players[0].cards)
+    scoreP1 = checkHand(table, players[1].cards)
     
-    winner = compareHand()
+    # Compares both hands to define the round's winner (or a tie) ----------
+    winner, winnerHand = compareHand(scoreP0,scoreP1)
     
+    # Small print for debugging purposes
+    print("Pot: {}, Bets: {}x{}".format(pot,
+                        players[0].bet,players[1].bet))
+    
+    # Paying (or splitting) the pot, according to the player's bet ammounts
+    if winner != 'split':
+        if players[winner].bet < players[winner-1].bet:
+            players[winner].winPot(players[winner].bet*2)
+            pot -= players[winner].bet*2
+            players[winner-1].winPot(pot)
+        else:
+            players[winner].winPot(pot)
+            players[winner-1].losePot()
+    else:
+        players[0].winPot(players[0].bet)
+        pot -= players[0].bet
+        players[1].winPot(players[1].bet)
+    
+    # Moving the button around to define the next blind charges
+    players[0].button = not players[0].button
+    players[1].button = not players[1].button
+    
+    # Restarting players round's bets and checking for losers
     for i in range(len(players)):
-        if players[i].button == True:   players[i].button = False
-        if players[i].button == False:  players[i].button = True
+        players[i].bet = 0
         if players[i].stack == 0:       players[1].active = False
+    
+        # Another debug print
+    print("Winner: Player {} - {}x{} and {}x{} chips!".format(winner,
+scoreP0[0],scoreP1[0],
+players[0].stack,players[1].stack))
+    
+    print("--------------------------------------------------------------------------------")
+        
+
     
 
 
@@ -109,6 +173,8 @@ def play(settings, players):
 ######################### POKER HAND CHECK ###################################
 ##############################################################################
 
+# All these methods below are used to identify a hand rank to provide points
+# (or power) in the checkHand class
 
 def flush(cards):
     suits = [card.suit for card in cards]
@@ -134,39 +200,6 @@ def straight(cards):
 
     return True
 
-# def highCard(cards):
-#     highCard = None
-#     for card in cards:
-#         if highCard is None:
-#             highCard = card
-#         elif highCard.value < card.value: 
-#             highCard=card
-
-#     return highCard.value
-
-# def higherCards(cards):
-#     new = []
-#     highCard = None
-#     while len(cards)>1:
-#         for i in range(len(cards)):
-#             if highCard is None:
-#                 highCard = (cards[i],i)
-#                 new.append(highCard[0])
-#             elif highCard.value < cards[i].value:
-#                 highCard=(cards[i],i)
-#                 new[-1]
-#                 cards.pop(i)
-            
-
-def highestCount(cards):
-    count = 0
-    values = [card.value for card in cards]
-    for value in values:
-        if values.count(value) > count:
-            count = values.count(value)
-
-    return count
-
 def pairs(cards):
     pairs = []
     values = [card.value for card in cards]
@@ -182,7 +215,7 @@ def threes(cards):
     for value in values:
         if values.count(value) == 3:
             return True, value
-        return False, value
+        return False, 0
     
 def fours(cards):
     values = [card.value for card in cards]

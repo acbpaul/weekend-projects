@@ -1,17 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jun 27 16:19:54 2022
-@author: adrpaul
+Will I need this in the future...?
 """
 
-# from itertools import combinations
-# import classes as c
-# import functions as f
-# import random
 
-
-
-# All possible initial hand combinations (decide to play or not)
+# All possible initial hand combinations (not sure how I´ll use this one yet)
 pokerHands = {'22',
               '32o','32s','33',
               '42o','42s','43o','43s','44',
