@@ -22,21 +22,21 @@ def checkHand(table,hand):
      
     cards = []
      
-     for card in table:  cards.append(card)
-     for card in hand:   cards.append(card)
+    for card in table:  cards.append(card)
+    for card in hand:   cards.append(card)
+   
+    # For some reason, the line below does not work when called, 
+    # so I'll leave it off for now
     
-     # For some reason, the line below does not work when called, 
-     # so I'll leave it off for now
-     
-     # cards = sorted(cards, key= lambda x: x.value, reverse=True)
-     hands = list(combinations(cards,5))
-     
-     checks = [c.checkHand(hand) for hand in hands] 
-     
-     best = [check.power for check in checks]
-     best = best.index(max(best))
-     
-     return hands[best], checks[best].power
+    # cards = sorted(cards, key= lambda x: x.value, reverse=True)
+    hands = list(combinations(cards,5))
+    
+    checks = [c.checkHand(hand) for hand in hands] 
+    
+    best = [check.power for check in checks]
+    best = best.index(max(best))
+    
+    return hands[best], checks[best].power
 
 
 
