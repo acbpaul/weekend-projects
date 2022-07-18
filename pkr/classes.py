@@ -248,18 +248,18 @@ class checkHand(object):
         if self.threes == True and self.nPairs == 1:
             self.fullHouse = True
         else: self.fullHouse = False
-        self.vals = [card.value for card in cards]
+        self.vals = [card.value^2 for card in cards]
         
         # Assigned points to a hand based on its rankings
         self.power = 0        
         self.power += sum(self.vals)
-        self.power += sum([val*20 for val in self.pairsVal])
-        self.power += self.threesVal*300
-        self.power += self.straight*5000
-        self.power += self.flush*6000
-        self.power += self.fullHouse*6000
-        self.power += self.foursVal*10000
-        self.power += self.straightFlush*150000
+        self.power += sum([val*200 for val in self.pairsVal])
+        self.power += self.threesVal*3000
+        self.power += self.straight*50000
+        self.power += self.flush*60000
+        self.power += self.fullHouse*60000
+        self.power += self.foursVal*100000
+        self.power += self.straightFlush*1500000
         
         
     def __str__(self):
