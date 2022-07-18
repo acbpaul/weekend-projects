@@ -18,7 +18,7 @@ class empenhos(object):
         
         self.dados = r.get('http://api.portaldatransparencia.gov.br/api-de-dados/despesas/documentos-por-favorecido', 
                     params={"ano":self.ano, "codigoPessoa":self.favorecido, "fase":self.fase, "pagina":self.pag}, 
-                    headers={"chave-api-dados":'e17daebe3e3913ccc6575af267ff484e'})
+                    headers={"chave-api-dados":''})
         self.dados = pd.DataFrame(self.dados.json())
         
         self.dados.valor = self.dados.valor.apply(lambda x: x.replace(",", "."))
