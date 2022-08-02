@@ -4,15 +4,14 @@ All classes used in the Poker Match simulator
 """
 
 import random
-from itertools import combinations
 import functions as f
 
 
 class PokerSettings():
     # Defines most settings needed to initialize a Poker Match
-    def __init__(self):
+    def __init__(self, gameMode, playerType0, playerType1):
         # Defines blinds structure (BB/SB)
-        self.blindLvl = [(20,10),(30,15),(40,20),(50,25),(60,30),(80,40),(100,50),
+        self.blindLvl = [(1,1),(30,15),(40,20),(50,25),(60,30),(80,40),(100,50),
                     (120,60),(150,75),(180,90),(210,105),(300,150),(400,200)]
         
         # Blind structure with antes (BB/SB/Ante) -- won't use for now
@@ -27,7 +26,8 @@ class PokerSettings():
         self.tier = 0
         
         # Defines the time needed for a tier change
-        self.speed = {"Regular": 360,
+        self.speed = {"Zero":    0,
+                      "Regular": 360,
                       "Turbo":   180,
                       "Hyper":   120}
         
@@ -43,6 +43,13 @@ class PokerSettings():
         
         # Defines time needed by the players to make a decision
         self.decisionTime = random.randint(5,15)
+        
+        # Defines if 'tournament' or single 'match'
+        self.gameMode = gameMode
+        
+        # Defines the strategy for each player ('random', 'human', 'trained')
+        self.playerType0 = playerType0
+        self.playerType1 = playerType1
         
 ##############################################################################
 
@@ -109,13 +116,14 @@ class Deck(object):
 class PokerPlayer():
 # Player object with defined actions a player might take in a Poker Match
 
-    def __init__(self, stack):
+    def __init__(self, stack, playerType):
 
         self.stack = stack
         self.cards = []
         self.active = True
         self.button = False
         self.bet = 0
+        self.playerType = playerType
 
     # Number of cards dealt to the player
     def cardCount(self):
@@ -185,6 +193,16 @@ class PokerPlayer():
             else:
                 hand = str(self.cards[0].short[0]) + str(self.cards[1].short[0]) + 'o'
                 return hand
+            
+    def action(self):
+        if self.playerType == 'random':
+            self.action = random.choice(['P', 'B'])
+            
+        if self.playerType == 'human':
+            self.action = input('Your hand: {} - (B)et or (P)ass?'.format(self.cards))
+            
+        if self.playerType == 'trained':
+            self.action = max(self.strategy[self.hand], key = self.strategy[self.hand].get)
 
 
     # To be used with any 2 cards in hand... or none
@@ -237,7 +255,7 @@ class checkHand(object):
     def __init__(self, cards):
         self.cards = cards
         
-        self.fours, self.foursVal = f.fours(self.cards)
+        self.fours, self.foursVal = f.four(self.cards)
         self.flush = f.flush(self.cards)
         self.straight = f.straight(self.cards)
         if self.flush == True and self.straight == True:

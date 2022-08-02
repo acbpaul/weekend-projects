@@ -9,18 +9,21 @@ import functions as f
 
 
 def PokerMatch():
-    settings = c.PokerSettings()
-    players = f.createPlayers(settings)
-    time = 0
-    speed = 'Hyper'
+    # Initializing settings w/ strategy for each player
+    settings = c.PokerSettings('match','random', 'random')  
     
+    # Creates players according to settings.maxPlayers
+    players = f.createPlayers(settings)
+    
+    # Initial Time
+    time = 0
+
+    # Zero, Regular, Turbo, Hyper                            
+    speed = 'Zero'                        
+    
+    # Starts match
     while (players[0].active == True) and (players[1].active == True):
         f.play(settings, players)
-        
-        time = time + settings.dealTime + settings.decisionTime
-        
-        if time >= settings.speed[speed]:   
-            settings.tier += 1
-            time -= settings.speed[speed]
+        time = f.updateTime(time, settings, speed)
             
 PokerMatch()

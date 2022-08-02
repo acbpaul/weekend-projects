@@ -4,16 +4,16 @@ Will I need this in the future...?
 """
 
 def payout(rs, h):
-  # if h == "PBP":
-  #   return -1
-  # elif h == "BP":
-  #   return 1
-  # m = 1 if (rs[0] > rs[1]) else -1
-  # if h == "PP":
-  #   return m
-  # if h in ["BB", "PBB"]:
-  #   return m*2
-  # assert False
+  if h == "PBP":
+    return -1
+  elif h == "BP":
+    return 1
+  m = 1 if (rs[0] > rs[1]) else -1
+  if h == "PP":
+    return m
+  if h in ["BB", "PBB"]:
+    return m*2
+  assert False
   return 1
 
 def get_information_set(rs, h):
