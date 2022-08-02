@@ -18,7 +18,7 @@ class empenhos(object):
         
         self.dados = r.get('http://api.portaldatransparencia.gov.br/api-de-dados/despesas/documentos-por-favorecido', 
                     params={"ano":self.ano, "codigoPessoa":self.favorecido, "fase":self.fase, "pagina":self.pag}, 
-                    headers={"chave-api-dados":'e17daebe3e3913ccc6575af267ff484e'})
+                    headers={"chave-api-dados":''})
         self.dados = pd.DataFrame(self.dados.json())
         
         self.dados.valor = self.dados.valor.apply(lambda x: x.replace(",", "."))
@@ -40,7 +40,7 @@ a = empenhos(ano,favorecido,fase,pag)
 
 docs = r.get('http://api.portaldatransparencia.gov.br/api-de-dados/despesas/documentos-por-favorecido', 
                     params={"ano":ano, "codigoPessoa":favorecido, "fase":fase, "pagina":pag}, 
-                    headers={"chave-api-dados":'e17daebe3e3913ccc6575af267ff484e'})
+                    headers={"chave-api-dados":''})
 df = pd.DataFrame(docs.json())
 
 
@@ -58,6 +58,6 @@ documento = '423034422072020NE800429'
 fase = 1
 rel = requests.get('http://api.portaldatransparencia.gov.br/api-de-dados/despesas/documentos-relacionados', 
                    params={"codigoDocumento":documento, "fase":fase},  
-                   headers={"chave-api-dados":'e17daebe3e3913ccc6575af267ff484e'})
+                   headers={"chave-api-dados":''})
 rel_py = rel.json()
 print(json.dumps(rel_py, sort_keys=True, indent=4))
