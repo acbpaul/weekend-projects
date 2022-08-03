@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Will I need this in the future...?
+Code to train the CFR Algorithmn
 """
 
 def payout(rs, h):

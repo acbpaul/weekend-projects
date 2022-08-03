@@ -52,7 +52,7 @@ def compareHand(scoreP0,scoreP1):
         
     
 def updateTime(time, settings, speed):
-    if speed != 'Zero':
+    if speed != 'zero':
         time = time + settings.dealTime + settings.decisionTime
         
         if time >= settings.speed[speed]:   
@@ -66,8 +66,7 @@ def createPlayers(settings):
     """
     Creates players according to the settings from PokerSettings class.
     So far, there is no need to create more than 2 players
-    """
-    
+    """ 
     # players = [c.PokerPlayer(settings.stack, 'random') for player in range(nrPlayers)]
     
     players = []
@@ -94,12 +93,20 @@ def initiateTable():
 
 def chargeBlind(players, pot, settings):
     for player in players:
-        if player.button == True:  
+        if player.button == False:  
+            # Pays the Big Blind
             pot += player.payBlind(settings.blindLvl[settings.tier][0])
 
         else:
+            # Pays the Small Blind and gets to Call First
             pot += player.payBlind(settings.blindLvl[settings.tier][1])
-        
+    return players, pot
+
+def chargeBlindDiff(player, pot, settings):
+    if player.action in ['P','B']:  
+        pot += player.payBet(settings.blindLvl[settings.tier][0]
+                               -settings.blindLvl[settings.tier][1])
+    return player, pot    
 
 
 def dealHand(players,deck):
@@ -108,6 +115,7 @@ def dealHand(players,deck):
             if players[i].button == True:
                 players[i].addCard(deck.deal())
                 players[i-1].addCard(deck.deal())
+    return players, deck
 
 
 def printTable(players, table):
@@ -127,6 +135,7 @@ def dealFlop(players, discard, table, deck):
     table[1].face_up = True
     table[2].face_up = True
     printTable(players, table)
+    return discard, table, deck
     
 
 
@@ -136,6 +145,7 @@ def dealTurn(players, discard, table, deck):
     table.append(deck.deal())
     table[3].face_up = True
     printTable(players, table)
+    return discard, table, deck
 
    
 def dealRiver(players, discard, table, deck):
@@ -143,6 +153,7 @@ def dealRiver(players, discard, table, deck):
     table.append(deck.deal())
     table[4].face_up = True
     printTable(players, table)
+    return discard, table, deck
     
     
 def checkWinner(table, players):
@@ -156,9 +167,18 @@ def checkWinner(table, players):
 
 
 def printResults(pot, players, winner, scoreP0, scoreP1):
-    print("Pot: {}, Bets: {}x{}".format(pot, players[0].bet, players[1].bet))
-    print("Winner: Player {} - {}x{} wins {}".format(winner, scoreP0[0],scoreP1[0], pot))
-    print("--------------------------------------------------------------------------------")   
+    if winner != 'split':       
+        i = int(winner)
+        if players[i].bet < pot/2:      pot = players[i].bet*2
+    
+    print("--------------------------------------------------------------------------------")
+    print("Pot: {}, Bets: {}x{}, P0 stack: {}, P1 stack: {}".format(pot, players[0].bet, players[1].bet,
+                                                                    players[0].stack, players[1].stack))
+    if winner != 'split':
+        print("Winner: Player {} - {} x {} wins {}".format(winner, scoreP0[0],scoreP1[0], pot))
+    else: 
+        print("Split Pot! - {} x {} each wins {}".format(scoreP0[0],scoreP1[0], int(pot/2)))
+    print("--------------------------------------------------------------------------------")
     
     
 def payout(players, winner, pot):
@@ -173,25 +193,51 @@ def payout(players, winner, pot):
     else:
         players[0].winPot(players[0].bet)
         pot -= players[0].bet
-        players[1].winPot(players[1].bet) 
+        players[1].winPot(players[1].bet)
+    pot = 0
+    return players, pot
 
 
-def restart(settings, players):
-    if settings.gameMode == 'Tournament':
+def restart(settings, players, pot):
+    if settings.gameMode == 'tournament':
         # Moving the button around to define the next blind charges
-        for player in players:      player.button = not player.button
+        for player in players:      
+            player.button = not player.button
+            player.allIn = False
         
         # Restarting players round's bets and checking for losers
-        for i in range(len(players)):
-            players[i].bet = 0
-            if players[i].stack == 0:       players[1].active = False
+        for player in players:
+            player.bet = 0
+            if player.stack == 0:       player.active = False
             
-    else: players[0].active, players[1].active == False
+    else:                               players[0].active = False
+    return players, pot
     
 
-            
-            
-            
+
+
+def endMatch(players,pot, i, settings):
+    print("--------------------------------------------------------------------------------")
+    print("Pot: {}, Bets: {}x{}, P0 stack: {}, P1 stack: {}".format(pot, players[0].bet, players[1].bet,
+                                                                    players[0].stack, players[1].stack))
+    print("Winner: Player {} - {} x {} wins {}".format(abs(i), players[0].cards,
+                                                     players[1].cards, pot))
+    print("--------------------------------------------------------------------------------")
+   
+    # Pays the pot accordingly
+    players, pot = payout(players, i, pot)        
+        
+    # If in Tournament Mode, passes the button for the next match
+    players, pot = restart(settings, players, pot)
+    return players, pot
+
+
+def checkBet(player,pot, settings):
+    if player.action == 'B':
+        pot += player.payBet(settings.blindLvl[settings.tier][0]*3)
+    return player, pot
+    
+        
         
     
 def play(settings, players):
@@ -199,25 +245,66 @@ def play(settings, players):
     The heart and soul of the game model!
     """
 #-------------------------------------------------------------------------
-    deck, table, discard, pot = initiateTable()     # Initiate table
+    # Initiate table
+    deck, table, discard, pot = initiateTable()     
 #-------------------------------------------------------------------------
-    chargeBlind(players, pot, settings)      # Charges blinds according to the button
-#-------------------------------------------------------------------------      
-    dealHand(players, deck)                  # Deals 2 cards to each player
-#-------------------------------------------------------------------------         
-    # TO-DO Player input
+    # Charges blinds according to the button
+    players, pot = chargeBlind(players, pot, settings)      
+#-------------------------------------------------------------------------
+    # Deals 2 cards to each player      
+    players, deck = dealHand(players, deck)                  
+#-------------------------------------------------------------------------
+         
+    # TO-DO Player input (pass, fold, bet)
+    actions = []
+    for i in range(len(players)):
+        # First Small Blind Player round of Action
+        if players[i].button == True:
+            players[i].defineAction()
+            actions.append(players[i].action) 
+            players[i], pot = chargeBlindDiff(players[i], pot, settings)
+            players[i], pot = checkBet(players[i],pot,settings)
+            
+            # Big Blind Player round of Action
+            players[i-1].defineAction()
+            actions[0] = actions[0] + players[i-1].action
+            
+            # Ends match if button bets and BB doesn't
+            if players[i].action == 'B' and players[i-1].action != 'B':
+                players, pot = endMatch(players, pot, i, settings)
+                return players
+            
+            # BB pays bet when button bets
+            elif players[i].action == 'B 'and players[i-1].action == 'B':
+                players[i-1], pot = checkBet(players[i-1],pot,settings)
+                
+            # Defines another action for button if first P then BB bets    
+            if players[i-1].action == 'B' and players[i].action == 'P':
+                players[i].defineAction()
+                actions[0] = actions[0] + players[i].action
+                
+                # Ends match if button doesn't pay BB bet
+                if players[i].action == 'P':   
+                    players, pot = endMatch(players, pot, i-1, settings)
+                    return players
+            
     
 
-#--------------------------------------------------------------------------   
-    dealFlop(players, discard, table, deck)          # Deal Cards for the Flop  
 #--------------------------------------------------------------------------
-    # TO-DO Player input
+    # Deal Cards for the Flop 
+    discard, table, deck = dealFlop(players, discard, table, deck)            
+#--------------------------------------------------------------------------
+    # TO-DO Player input ((pass, bet))
+    if players[0].allIn == False and players[1].allIn == False:
+        pass
     
 
 #--------------------------------------------------------------------------
-    dealTurn(players, discard, table, deck)          # Deal Card for the Turn
+    # Deal Card for the Turn
+    discard, table, deck = dealTurn(players, discard, table, deck)          
 #--------------------------------------------------------------------------
-    dealRiver(players, discard, table, deck)         # Deal Card for the River       
+    # Deal Card for the River
+    discard, table, deck = dealRiver(players, discard, table, deck)                
 #--------------------------------------------------------------------------
     
     # Defines match winner and winner hand    
@@ -227,14 +314,32 @@ def play(settings, players):
     printResults(pot, players, winner, scoreP0, scoreP1)
    
     # Pays the pot accordingly
-    payout(players, winner, pot)        
+    players, pot = payout(players, winner, pot)        
         
     # If in Tournament Mode, passes the button for the next match
-    restart(settings, players)
+    players, pot = restart(settings, players, pot)
+
+    return players
 
 
 
-
+def PokerMatch(gameMode, gameSpeed, strategyP0, strategyP1):
+    # Initializing settings w/ strategy for each player
+    settings = c.PokerSettings(gameMode, strategyP0, strategyP1)  
+    
+    # Creates players according to settings.maxPlayers
+    players = createPlayers(settings)
+    
+    # Initial Time
+    time = 0                
+    
+    # Starts match
+    while (players[0].active == True) and (players[1].active == True):
+        players = play(settings, players)
+        time = updateTime(time, settings, gameSpeed)
+        
+        
+        
 ##############################################################################
 ######################### POKER HAND CHECK ###################################
 ##############################################################################
@@ -283,7 +388,7 @@ def threes(cards):
             return True, value
         return False, 0
     
-def four(cards):
+def quad(cards):
     values = [card.value for card in cards]
     for value in values:
         if values.count(value) == 4:

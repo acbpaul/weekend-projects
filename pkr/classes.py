@@ -11,7 +11,7 @@ class PokerSettings():
     # Defines most settings needed to initialize a Poker Match
     def __init__(self, gameMode, playerType0, playerType1):
         # Defines blinds structure (BB/SB)
-        self.blindLvl = [(1,1),(30,15),(40,20),(50,25),(60,30),(80,40),(100,50),
+        self.blindLvl = [(20,10),(30,15),(40,20),(50,25),(60,30),(80,40),(100,50),
                     (120,60),(150,75),(180,90),(210,105),(300,150),(400,200)]
         
         # Blind structure with antes (BB/SB/Ante) -- won't use for now
@@ -26,10 +26,10 @@ class PokerSettings():
         self.tier = 0
         
         # Defines the time needed for a tier change
-        self.speed = {"Zero":    0,
-                      "Regular": 360,
-                      "Turbo":   180,
-                      "Hyper":   120}
+        self.speed = {"zero":    0,
+                      "regular": 360,
+                      "turbo":   180,
+                      "hyper":   120}
         
         
         # Defines player's initial stack
@@ -42,7 +42,7 @@ class PokerSettings():
         self.dealTime = 5
         
         # Defines time needed by the players to make a decision
-        self.decisionTime = random.randint(5,15)
+        self.decisionTime = random.randint(5,20)
         
         # Defines if 'tournament' or single 'match'
         self.gameMode = gameMode
@@ -124,6 +124,7 @@ class PokerPlayer():
         self.button = False
         self.bet = 0
         self.playerType = playerType
+        self.allIn = False
 
     # Number of cards dealt to the player
     def cardCount(self):
@@ -135,20 +136,23 @@ class PokerPlayer():
         
     # Pay the initial fee at the start of the round
     def payBlind(self,blind):
-        if blind > self.stack: 
-            self.bet = self.stack
-            self.stack -= self.bet
-            return self.bet
+        if blind > self.stack:
+            blind = self.stack
+            self.bet = blind
+            self.stack -= blind
+            self.allIn = True
+            return blind
         else:
             self.stack -= blind
             self.bet += blind
-            return self.bet      
+            return blind   
     
     # Bets all remaining chips
     def betAllIn(self):
         bet = self.stack
         self.bet += bet
         self.stack -= bet
+        self.allIn = True
         return bet
     
     # Calls a bet from another player
@@ -157,6 +161,7 @@ class PokerPlayer():
             bet = self.stack
             self.bet += bet
             self.stack -= bet
+            self.allIn = True
             return bet
         else:
             self.stack -= bet
@@ -194,15 +199,19 @@ class PokerPlayer():
                 hand = str(self.cards[0].short[0]) + str(self.cards[1].short[0]) + 'o'
                 return hand
             
-    def action(self):
+    def defineAction(self):
         if self.playerType == 'random':
             self.action = random.choice(['P', 'B'])
             
-        if self.playerType == 'human':
-            self.action = input('Your hand: {} - (B)et or (P)ass?'.format(self.cards))
+        elif self.playerType == 'human':
+            print('Your hand: {} - (B)et or (P)ass?'.format(self.cards))
+            self.action = input()
             
-        if self.playerType == 'trained':
+        elif self.playerType == 'trained':
             self.action = max(self.strategy[self.hand], key = self.strategy[self.hand].get)
+            
+        if self.allIn == True:
+            self.action = 'B'
 
 
     # To be used with any 2 cards in hand... or none
@@ -255,7 +264,7 @@ class checkHand(object):
     def __init__(self, cards):
         self.cards = cards
         
-        self.fours, self.foursVal = f.four(self.cards)
+        self.quad, self.quadVal = f.quad(self.cards)
         self.flush = f.flush(self.cards)
         self.straight = f.straight(self.cards)
         if self.flush == True and self.straight == True:
@@ -276,7 +285,7 @@ class checkHand(object):
         self.power += self.straight*50000
         self.power += self.flush*60000
         self.power += self.fullHouse*60000
-        self.power += self.foursVal*100000
+        self.power += self.quadVal*100000
         self.power += self.straightFlush*1500000
         
         
@@ -285,49 +294,10 @@ class checkHand(object):
         
         
  
-
-
-
-
-
-
-
-
-
-
-
-
-         
-# Contains the cards dealt from the deck to a player in a given game          
-# class Hand(object):
-#     # Computes all possible initial hands combinations
-#     self.pairs = []
-#     for i in range(len(self.cards)-1):
-#         for j in range(i+1,len(self.cards)):
-#             self.pairs.append([self.cards[i],self.cards[j]])
-            
-#     self.hands = []
-#     for item in self.pairs:
-#         self.hands.append(hand(item))
-        
-#     self.hands = list(set(self.hands))
-#     self.hands.sort()
-    
-#     def pairingHands(self.pairs,self.hands):
-#         self.short = dict
-#         for pair in self.pairs:
-#             for hand in self.hands:
-#                 if pair[0].value == pair[1].value and str(pair[0].value)*2 == hand:
-#                     self.short 
                     
                     
                     
-                    
-                    
-                    
-                    
-                    
-                    
+                 
 ############################################################################                  
                     
 # Standard deck for a game of Truco
