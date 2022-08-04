@@ -9,6 +9,7 @@ simultaneous players in a match (so far, there is no need to expand on it too)
 from itertools import combinations
 import classes as c
 import random
+import pandas as pd
 
 
 def checkHand(table,hand):
@@ -257,16 +258,17 @@ def play(settings, players):
          
     # TO-DO Player input (pass, fold, bet)
     actions = []
+    strategy = pd.read_csv('strategy.csv', index_col = 'Unnamed: 0')
     for i in range(len(players)):
         # First Small Blind Player round of Action
         if players[i].button == True:
-            players[i].defineAction()
+            players[i].defineAction(actions, strategy)
             actions.append(players[i].action) 
             players[i], pot = chargeBlindDiff(players[i], pot, settings)
             players[i], pot = checkBet(players[i],pot,settings)
             
             # Big Blind Player round of Action
-            players[i-1].defineAction()
+            players[i-1].defineAction(actions, strategy)
             actions[0] = actions[0] + players[i-1].action
             
             # Ends match if button bets and BB doesn't
@@ -280,8 +282,9 @@ def play(settings, players):
                 
             # Defines another action for button if first P then BB bets    
             if players[i-1].action == 'B' and players[i].action == 'P':
-                players[i].defineAction()
+                players[i].defineAction(actions, strategy)
                 actions[0] = actions[0] + players[i].action
+                players[i], pot = checkBet(players[i],pot,settings)
                 
                 # Ends match if button doesn't pay BB bet
                 if players[i].action == 'P':   
@@ -295,8 +298,8 @@ def play(settings, players):
     discard, table, deck = dealFlop(players, discard, table, deck)            
 #--------------------------------------------------------------------------
     # TO-DO Player input ((pass, bet))
-    if players[0].allIn == False and players[1].allIn == False:
-        pass
+    # if players[0].allIn == False and players[1].allIn == False:
+    #     pass
     
 
 #--------------------------------------------------------------------------
@@ -323,7 +326,7 @@ def play(settings, players):
 
 
 
-def PokerMatch(gameMode, gameSpeed, strategyP0, strategyP1):
+def PokerMatch(gameMode, gameSpeed, strategyP0, strategyP1, log):
     # Initializing settings w/ strategy for each player
     settings = c.PokerSettings(gameMode, strategyP0, strategyP1)  
     
@@ -331,13 +334,20 @@ def PokerMatch(gameMode, gameSpeed, strategyP0, strategyP1):
     players = createPlayers(settings)
     
     # Initial Time
-    time = 0                
+    time = 0   
+           
     
     # Starts match
     while (players[0].active == True) and (players[1].active == True):
         players = play(settings, players)
         time = updateTime(time, settings, gameSpeed)
         
+    
+    for i, player in enumerate(players):
+        if players[i].active == True:
+            # winLog.append(str(i))
+            print('Winner is Player {}'.format(i))
+            log.append(i)
         
         
 ##############################################################################

@@ -125,11 +125,19 @@ for I in ISETS:
 # learn strategy
 import copy
 import random
-for t in range(1, 20000):
+for t in range(1, 200):
   sigma[t+1] = copy.deepcopy(sigma[t])
   for i in [1,2]:
     cfr(random.choice(HANDS), "", i, t, 1, 1)
   del sigma[t] 
+
+
+# print "average" strategy
+for k,v in strategy.items():
+  norm = sum(list(v.values()))
+  print("%3s: P:%.4f B:%.4f" % (k, v['P']/norm, v['B']/norm))
+
+
 
 
 
@@ -164,7 +172,7 @@ for I in ISETS:
 # learn strategy
 import copy
 import random
-for t in range(1, 20000):
+for t in range(1, 2000):
   sigma[t+1] = copy.deepcopy(sigma[t])
   for i in [1,2]:
     cfr(random.choice(HANDS), "", i, t, 1, 1)
@@ -178,6 +186,11 @@ for t in range(1, 20000):
 
 
 
+
+
+
+
+##############################################################################
 
 ##############################################################################
 
@@ -281,7 +294,7 @@ for I in ISETS:
 # learn strategy
 import copy
 import random
-for t in range(1, 200):
+for t in range(1, 20000):
   sigma[t+1] = copy.deepcopy(sigma[t])
   for i in [1,2]:
     cfr(random.choice(HANDS), "", i, t, 1, 1)   # hands pair, history, player, game, pi1, pi2 (?)

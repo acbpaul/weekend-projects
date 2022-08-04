@@ -191,24 +191,39 @@ class PokerPlayer():
             
             if self.cards[0].value == self.cards[1].value:
                 hand = str(self.cards[0].short[0]) + str(self.cards[1].short[0])
+                return hand
                 
-            if self.cards[0].symbol == self.cards[1].symbol:
+            elif self.cards[0].symbol == self.cards[1].symbol:
                 hand = str(self.cards[0].short[0]) + str(self.cards[1].short[0]) + 's'
                 return hand
             else:
                 hand = str(self.cards[0].short[0]) + str(self.cards[1].short[0]) + 'o'
                 return hand
             
-    def defineAction(self):
+    def defineAction(self, actions, strategy):
         if self.playerType == 'random':
-            self.action = random.choice(['P', 'B'])
+            if random.uniform(0,1) <= 0.01:
+                self.action = 'P'
+            else: 
+                self.action = 'B'
             
         elif self.playerType == 'human':
             print('Your hand: {} - (B)et or (P)ass?'.format(self.cards))
             self.action = input()
             
         elif self.playerType == 'trained':
-            self.action = max(self.strategy[self.hand], key = self.strategy[self.hand].get)
+            if len(actions)>0:
+                if random.uniform(0,1) <= strategy.loc[self.hand()+actions[0]]['P']:
+                    self.action = 'P'
+                else: 
+                    self.action = 'B'
+            else:
+                if random.uniform(0,1) <= strategy.loc[self.hand()]['P']:
+                    self.action = 'P'
+                else: 
+                    self.action = 'B'
+            # self.action = max(self.strategy[self.hand()+actions[0]], 
+            #                   key = self.strategy[self.hand()+actions[0]].get)
             
         if self.allIn == True:
             self.action = 'B'
@@ -228,7 +243,8 @@ class PokerDeck(Deck):
 
     def __init__(self):
         
-        values = {"Two":    ("2", 2),
+        values = {
+                  "Two":    ("2", 2),
                   "Three":  ("3", 3),
                   "Four":   ("4", 4),
                   "Five":   ("5", 5),
