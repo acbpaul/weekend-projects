@@ -42,7 +42,7 @@ class PokerSettings():
         self.dealTime = 5
         
         # Defines time needed by the players to make a decision
-        self.decisionTime = random.randint(5,20)
+        self.decisionTime = random.randint(5,15)
         
         # Defines if 'tournament' or single 'match'
         self.gameMode = gameMode

@@ -8,11 +8,13 @@ Nothing much to say here... just run the script
 import functions as f
 
 gameMode    = 'tournament'        # tournament or match
-gameSpeed   = 'hyper'             # zero, regular, turbo or hyper
+gameSpeed   = 'regular'             # zero, regular, turbo or hyper
 strategyP0  = 'trained'           # random, human, trained
 strategyP1  = 'random'            # random, human trained
 log = []
 
 if __name__ == "__main__":
-    for i in range(1000):            
+    for i in range(100):            
         f.PokerMatch(gameMode, gameSpeed, strategyP0, strategyP1, log)
+        
+    print(sum(log))

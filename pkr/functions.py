@@ -258,7 +258,7 @@ def play(settings, players):
          
     # TO-DO Player input (pass, fold, bet)
     actions = []
-    strategy = pd.read_csv('strategy.csv', index_col = 'Unnamed: 0')
+    strategy = pd.read_csv('strategy500k-7.csv', index_col = 'Unnamed: 0')
     for i in range(len(players)):
         # First Small Blind Player round of Action
         if players[i].button == True:
@@ -277,7 +277,7 @@ def play(settings, players):
                 return players
             
             # BB pays bet when button bets
-            elif players[i].action == 'B 'and players[i-1].action == 'B':
+            elif players[i].action == 'B' and players[i-1].action == 'B':
                 players[i-1], pot = checkBet(players[i-1],pot,settings)
                 
             # Defines another action for button if first P then BB bets    

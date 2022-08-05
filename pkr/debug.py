@@ -17,7 +17,7 @@ def payout(scoreP0, scoreP1, h):
     if h == "PP":
         return m
     if h in ["BB", "PBB"]:
-        return m*5
+        return m*7
     assert False
     return 1
 
@@ -143,7 +143,7 @@ import functions as f
 
 settings = c.PokerSettings('match', 'random', 'random') 
 
-for t in range(1, 200000):
+for t in range(1, 500000):
     sigma[t+1] = copy.deepcopy(sigma[t])
     players = f.createPlayers(settings)
     deck, table, discard, pot = f.initiateTable() 
@@ -168,7 +168,7 @@ for t in range(1, 200000):
 import pandas as pd
 df = pd.DataFrame(strategy).T
 df = df.div(df.sum(axis=1), axis=0)
-df.to_csv('strategy200k.csv', index=True)
+df.to_csv('strategy500k-7.csv', index=True)
 
 
 
