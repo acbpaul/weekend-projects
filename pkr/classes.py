@@ -5,11 +5,13 @@ All classes used in the Poker Match simulator
 
 import random
 import functions as f
+import pandas as pd
 
 
 class PokerSettings():
     # Defines most settings needed to initialize a Poker Match
-    def __init__(self, gameMode, playerType0, playerType1):
+    def __init__(self, gameMode, playerType0, strategyP0, actionP0,
+                 playerType1, strategyP1, actionP1):
         # Defines blinds structure (BB/SB)
         self.blindLvl = [(20,10),(30,15),(40,20),(50,25),(60,30),(80,40),(100,50),
                     (120,60),(150,75),(180,90),(210,105),(300,150),(400,200)]
@@ -47,9 +49,17 @@ class PokerSettings():
         # Defines if 'tournament' or single 'match'
         self.gameMode = gameMode
         
-        # Defines the strategy for each player ('random', 'human', 'trained')
+        # Defines the player type for each player ('random', 'human', 'trained')
         self.playerType0 = playerType0
         self.playerType1 = playerType1
+        
+        # Defines the strategy for each player ('random', 'human', 'trained')
+        self.strategyP0 = strategyP0
+        self.strategyP1 = strategyP1
+        
+        # Defines the action for each player post Flop
+        self.actionP0 = actionP0
+        self.actionP1 = actionP1
         
 ##############################################################################
 
@@ -116,7 +126,7 @@ class Deck(object):
 class PokerPlayer():
 # Player object with defined actions a player might take in a Poker Match
 
-    def __init__(self, stack, playerType):
+    def __init__(self, stack, playerType, strategy, actionGuide):
 
         self.stack = stack
         self.cards = []
@@ -124,7 +134,15 @@ class PokerPlayer():
         self.button = False
         self.bet = 0
         self.playerType = playerType
+        self.strategy = strategy
+        self.actionGuide = actionGuide
         self.allIn = False
+        
+        if self.playerType == 'trained':
+            self.strategy = pd.read_csv('strats/'+ str(self.strategy)+'.csv', 
+                                        index_col = 'Unnamed: 0')
+            self.actionGuide = pd.read_csv('actions/'+ str(self.actionGuide)+'.csv', 
+                                        index_col = 'Unnamed: 0')
 
     # Number of cards dealt to the player
     def cardCount(self):
@@ -200,9 +218,9 @@ class PokerPlayer():
                 hand = str(self.cards[0].short[0]) + str(self.cards[1].short[0]) + 'o'
                 return hand
             
-    def defineAction(self, actions, strategy):
+    def defineActionPreFlop(self, pastActions):
         if self.playerType == 'random':
-            if random.uniform(0,1) <= 0.01:
+            if random.uniform(0,1) <= self.strategy:
                 self.action = 'P'
             else: 
                 self.action = 'B'
@@ -212,21 +230,51 @@ class PokerPlayer():
             self.action = input()
             
         elif self.playerType == 'trained':
-            if len(actions)>0:
-                if random.uniform(0,1) <= strategy.loc[self.hand()+actions[0]]['P']:
+            if len(pastActions)>0:
+                if random.uniform(0,1) <= self.strategy.loc[self.hand()+pastActions[0]]['P']:
                     self.action = 'P'
                 else: 
                     self.action = 'B'
             else:
-                if random.uniform(0,1) <= strategy.loc[self.hand()]['P']:
+                if random.uniform(0,1) <= self.strategy.loc[self.hand()]['P']:
                     self.action = 'P'
                 else: 
                     self.action = 'B'
-            # self.action = max(self.strategy[self.hand()+actions[0]], 
-            #                   key = self.strategy[self.hand()+actions[0]].get)
             
         if self.allIn == True:
             self.action = 'B'
+            
+            
+    def defineActionPostFlop(self, pastActions):
+        if self.playerType == 'random':
+            if random.uniform(0,1) <= self.strategy:
+                self.action = 'P'
+            else: 
+                self.action = 'B'
+            
+        elif self.playerType == 'human':
+            print('Your hand: {} - (B)et or (P)ass?'.format(self.cards))
+            self.action = input()
+            
+        elif self.playerType == 'trained':
+            
+            if len(pastActions)>0:
+                if random.uniform(0,1) <= self.actionGuide.loc[self.appraise]['P']:
+                    self.action = 'P'
+                else: 
+                    self.action = 'B'
+            else:
+                if random.uniform(0,1) <= self.actionGuide.loc[self.appraise]['P']:
+                    self.action = 'P'
+                else: 
+                    self.action = 'B'
+            
+        if self.allIn == True:
+            self.action = 'B'
+            
+    def appraiseHand(self, table):
+        self.fullHand = self.cards+table
+        self.appraise = f.appraise(self.fullHand)
 
 
     # To be used with any 2 cards in hand... or none

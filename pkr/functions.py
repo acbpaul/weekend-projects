@@ -71,8 +71,8 @@ def createPlayers(settings):
     # players = [c.PokerPlayer(settings.stack, 'random') for player in range(nrPlayers)]
     
     players = []
-    players.append(c.PokerPlayer(settings.stack, settings.playerType0))
-    players.append(c.PokerPlayer(settings.stack, settings.playerType1))
+    players.append(c.PokerPlayer(settings.stack, settings.playerType0, settings.strategyP0, settings.actionP0))
+    players.append(c.PokerPlayer(settings.stack, settings.playerType1, settings.strategyP1, settings.actionP1))
 
     players[random.randint(0,settings.maxPlayers-1)].button = True
     
@@ -172,14 +172,14 @@ def printResults(pot, players, winner, scoreP0, scoreP1):
         i = int(winner)
         if players[i].bet < pot/2:      pot = players[i].bet*2
     
-    print("--------------------------------------------------------------------------------")
-    print("Pot: {}, Bets: {}x{}, P0 stack: {}, P1 stack: {}".format(pot, players[0].bet, players[1].bet,
-                                                                    players[0].stack, players[1].stack))
-    if winner != 'split':
-        print("Winner: Player {} - {} x {} wins {}".format(winner, scoreP0[0],scoreP1[0], pot))
-    else: 
-        print("Split Pot! - {} x {} each wins {}".format(scoreP0[0],scoreP1[0], int(pot/2)))
-    print("--------------------------------------------------------------------------------")
+    # print("--------------------------------------------------------------------------------")
+    # print("Pot: {}, Bets: {}x{}, P0 stack: {}, P1 stack: {}".format(pot, players[0].bet, players[1].bet,
+    #                                                                 players[0].stack, players[1].stack))
+    # if winner != 'split':
+    #     print("Winner: Player {} - {} x {} wins {}".format(winner, scoreP0[0],scoreP1[0], pot))
+    # else: 
+    #     print("Split Pot! - {} x {} each wins {}".format(scoreP0[0],scoreP1[0], int(pot/2)))
+    # print("--------------------------------------------------------------------------------")
     
     
 def payout(players, winner, pot):
@@ -218,12 +218,12 @@ def restart(settings, players, pot):
 
 
 def endMatch(players,pot, i, settings):
-    print("--------------------------------------------------------------------------------")
-    print("Pot: {}, Bets: {}x{}, P0 stack: {}, P1 stack: {}".format(pot, players[0].bet, players[1].bet,
-                                                                    players[0].stack, players[1].stack))
-    print("Winner: Player {} - {} x {} wins {}".format(abs(i), players[0].cards,
-                                                     players[1].cards, pot))
-    print("--------------------------------------------------------------------------------")
+    # print("--------------------------------------------------------------------------------")
+    # print("Pot: {}, Bets: {}x{}, P0 stack: {}, P1 stack: {}".format(pot, players[0].bet, players[1].bet,
+    #                                                                 players[0].stack, players[1].stack))
+    # print("Winner: Player {} - {} x {} wins {}".format(abs(i), players[0].cards,
+    #                                                   players[1].cards, pot))
+    # print("--------------------------------------------------------------------------------")
    
     # Pays the pot accordingly
     players, pot = payout(players, i, pot)        
@@ -256,19 +256,18 @@ def play(settings, players):
     players, deck = dealHand(players, deck)                  
 #-------------------------------------------------------------------------
          
-    # TO-DO Player input (pass, fold, bet)
     actions = []
-    strategy = pd.read_csv('strategy500k-7.csv', index_col = 'Unnamed: 0')
+    
     for i in range(len(players)):
         # First Small Blind Player round of Action
         if players[i].button == True:
-            players[i].defineAction(actions, strategy)
+            players[i].defineActionPreFlop(actions)
             actions.append(players[i].action) 
             players[i], pot = chargeBlindDiff(players[i], pot, settings)
             players[i], pot = checkBet(players[i],pot,settings)
             
             # Big Blind Player round of Action
-            players[i-1].defineAction(actions, strategy)
+            players[i-1].defineActionPreFlop(actions)
             actions[0] = actions[0] + players[i-1].action
             
             # Ends match if button bets and BB doesn't
@@ -282,7 +281,7 @@ def play(settings, players):
                 
             # Defines another action for button if first P then BB bets    
             if players[i-1].action == 'B' and players[i].action == 'P':
-                players[i].defineAction(actions, strategy)
+                players[i].defineActionPreFlop(actions)
                 actions[0] = actions[0] + players[i].action
                 players[i], pot = checkBet(players[i],pot,settings)
                 
@@ -298,8 +297,40 @@ def play(settings, players):
     discard, table, deck = dealFlop(players, discard, table, deck)            
 #--------------------------------------------------------------------------
     # TO-DO Player input ((pass, bet))
-    # if players[0].allIn == False and players[1].allIn == False:
-    #     pass
+    actions = []
+
+    for i in range(len(players)):
+        # First Small Blind Player round of Action
+        if players[i].button == True:
+            players[i].appraiseHand(table)
+            players[i].defineActionPostFlop(actions)
+            actions.append(players[i].action)
+            players[i], pot = checkBet(players[i],pot,settings)
+            
+            # Big Blind Player round of Action
+            players[i-1].appraiseHand(table)
+            players[i-1].defineActionPostFlop(actions)
+            actions[0] = actions[0] + players[i-1].action
+            
+            # Ends match if button bets and BB doesn't
+            if players[i].action == 'B' and players[i-1].action != 'B':
+                players, pot = endMatch(players, pot, i, settings)
+                return players
+            
+            # BB pays bet when button bets
+            elif players[i].action == 'B' and players[i-1].action == 'B':
+                players[i-1], pot = checkBet(players[i-1],pot,settings)
+                
+            # Defines another action for button if first P then BB bets    
+            if players[i-1].action == 'B' and players[i].action == 'P':
+                players[i].defineActionPostFlop(actions)
+                actions[0] = actions[0] + players[i].action
+                players[i], pot = checkBet(players[i],pot,settings)
+                
+                # Ends match if button doesn't pay BB bet
+                if players[i].action == 'P':   
+                    players, pot = endMatch(players, pot, i-1, settings)
+                    return players
     
 
 #--------------------------------------------------------------------------
@@ -314,7 +345,7 @@ def play(settings, players):
     scoreP0, scoreP1, winner, winnerHand = checkWinner(table, players)
     
     # Small print for debugging purposes
-    printResults(pot, players, winner, scoreP0, scoreP1)
+    #printResults(pot, players, winner, scoreP0, scoreP1)
    
     # Pays the pot accordingly
     players, pot = payout(players, winner, pot)        
@@ -326,9 +357,11 @@ def play(settings, players):
 
 
 
-def PokerMatch(gameMode, gameSpeed, strategyP0, strategyP1, log):
+def PokerMatch(gameMode, gameSpeed, playerType0, strategyP0, actionP0,
+               playerType1, strategyP1, actionP1, log):
     # Initializing settings w/ strategy for each player
-    settings = c.PokerSettings(gameMode, strategyP0, strategyP1)  
+    settings = c.PokerSettings(gameMode, playerType0, strategyP0, actionP0,
+                               playerType1, strategyP1, actionP1)  
     
     # Creates players according to settings.maxPlayers
     players = createPlayers(settings)
@@ -346,7 +379,7 @@ def PokerMatch(gameMode, gameSpeed, strategyP0, strategyP1, log):
     for i, player in enumerate(players):
         if players[i].active == True:
             # winLog.append(str(i))
-            print('Winner is Player {}'.format(i))
+            # print('Winner is Player {}'.format(i))
             log.append(i)
         
         
@@ -367,7 +400,7 @@ def straight(cards):
     values = [card.value for card in cards]
     values.sort()
 
-    if not len( set(values)) == 5:
+    if not len(set(values)) == 5:
         return False 
 
     if values[4] == 14 and values[0] == 2 and values[1] == 3 and values[2] == 4 and values[3] == 5:
@@ -418,4 +451,52 @@ def fullHouse(cards):
     if two and three:
         return True
 
-    return False 
+    return False
+
+
+##########################################################################
+
+def straightCheck(cards):
+    values = [card.value for card in cards]
+    values.sort()
+
+    if values[4] == 14 and values[0] == 2 and values[1] == 3 and values[2] == 4 and values[3] == 5:
+        return 5
+
+
+    else: 
+        d1 = values[4] - values[3]
+        d2 = values[3] - values[2]
+        d3 = values[2] - values[1]
+        d4 = values[1] - values[0]
+        
+        dif =[]
+        dif.append(d1)
+        dif.append(d2)
+        dif.append(d3)
+        dif.append(d4)
+        c = dif.count(1)
+        if c == 4:  return 4
+        else:       return 0
+        
+def flushCheck(cards):
+    suits = [card.suit for card in cards]
+    if len(set(suits)) == 1:
+        return 5
+    for suit in suits:
+        if suits.count(suit) == 4:
+            return 4
+        return 0
+    
+
+
+def appraise(cards):
+    qd, qdv = quad(cards)
+    fl = flushCheck(cards)
+    st = straightCheck(cards) 
+    tr, trv = threes(cards)
+    pr, np, tpv = pairs(cards)
+    
+    app ='QD{}FL{}ST{}TR{}PR{}'.format(int(qd),int(fl),int(st),int(tr),int(pr))
+    
+    return app
