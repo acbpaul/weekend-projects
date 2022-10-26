@@ -56,9 +56,10 @@ def updateTime(time, settings, speed):
     if speed != 'zero':
         time = time + settings.dealTime + settings.decisionTime
         
-        if time >= settings.speed[speed]:   
-            settings.tier += 1
-            time -= settings.speed[speed]
+        if settings.tier < len(settings.blindLvl)-1:
+            if time >= settings.speed[speed]:   
+                settings.tier += 1
+                time -= settings.speed[speed]
         
     return time
         
@@ -269,6 +270,7 @@ def play(settings, players):
             # Big Blind Player round of Action
             players[i-1].defineActionPreFlop(actions)
             actions[0] = actions[0] + players[i-1].action
+            players[i-1], pot = checkBet(players[i-1],pot,settings)
             
             # Ends match if button bets and BB doesn't
             if players[i].action == 'B' and players[i-1].action != 'B':
@@ -311,6 +313,7 @@ def play(settings, players):
             players[i-1].appraiseHand(table)
             players[i-1].defineActionPostFlop(actions)
             actions[0] = actions[0] + players[i-1].action
+            players[i-1], pot = checkBet(players[i-1],pot,settings)
             
             # Ends match if button bets and BB doesn't
             if players[i].action == 'B' and players[i-1].action != 'B':
@@ -340,12 +343,51 @@ def play(settings, players):
     # Deal Card for the River
     discard, table, deck = dealRiver(players, discard, table, deck)                
 #--------------------------------------------------------------------------
+
+    #Adicionar uma rodada final? Veremos
+
+    # actions = []
+
+    # for i in range(len(players)):
+    #     # First Small Blind Player round of Action
+    #     if players[i].button == True:
+    #         players[i].appraiseHand(table)
+    #         players[i].defineActionPostFlop(actions)
+    #         actions.append(players[i].action)
+    #         players[i], pot = checkBet(players[i],pot,settings)
+            
+    #         # Big Blind Player round of Action
+    #         players[i-1].appraiseHand(table)
+    #         players[i-1].defineActionPostFlop(actions)
+    #         actions[0] = actions[0] + players[i-1].action
+            
+    #         # Ends match if button bets and BB doesn't
+    #         if players[i].action == 'B' and players[i-1].action != 'B':
+    #             players, pot = endMatch(players, pot, i, settings)
+    #             return players
+            
+    #         # BB pays bet when button bets
+    #         elif players[i].action == 'B' and players[i-1].action == 'B':
+    #             players[i-1], pot = checkBet(players[i-1],pot,settings)
+                
+    #         # Defines another action for button if first P then BB bets    
+    #         if players[i-1].action == 'B' and players[i].action == 'P':
+    #             players[i].defineActionPostFlop(actions)
+    #             actions[0] = actions[0] + players[i].action
+    #             players[i], pot = checkBet(players[i],pot,settings)
+                
+    #             # Ends match if button doesn't pay BB bet
+    #             if players[i].action == 'P':   
+    #                 players, pot = endMatch(players, pot, i-1, settings)
+    #                 return players
+                
+#--------------------------------------------------------------------------
     
     # Defines match winner and winner hand    
     scoreP0, scoreP1, winner, winnerHand = checkWinner(table, players)
     
     # Small print for debugging purposes
-    #printResults(pot, players, winner, scoreP0, scoreP1)
+    printResults(pot, players, winner, scoreP0, scoreP1)
    
     # Pays the pot accordingly
     players, pot = payout(players, winner, pot)        
@@ -357,7 +399,7 @@ def play(settings, players):
 
 
 
-def PokerMatch(gameMode, gameSpeed, playerType0, strategyP0, actionP0,
+def pokerMatch(gameMode, gameSpeed, playerType0, strategyP0, actionP0,
                playerType1, strategyP1, actionP1, log):
     # Initializing settings w/ strategy for each player
     settings = c.PokerSettings(gameMode, playerType0, strategyP0, actionP0,
@@ -369,11 +411,11 @@ def PokerMatch(gameMode, gameSpeed, playerType0, strategyP0, actionP0,
     # Initial Time
     time = 0   
            
-    
     # Starts match
     while (players[0].active == True) and (players[1].active == True):
         players = play(settings, players)
         time = updateTime(time, settings, gameSpeed)
+
         
     
     for i, player in enumerate(players):

@@ -14,7 +14,7 @@ class PokerSettings():
                  playerType1, strategyP1, actionP1):
         # Defines blinds structure (BB/SB)
         self.blindLvl = [(20,10),(30,15),(40,20),(50,25),(60,30),(80,40),(100,50),
-                    (120,60),(150,75),(180,90),(210,105),(300,150),(400,200)]
+                    (120,60),(150,75),(180,90),(210,105),(300,150),(400,200), (500,250), (1000,500)]
         
         # Blind structure with antes (BB/SB/Ante) -- won't use for now
         # self.blinds = [[20,10,0],[30,15,0],[50,25,0],[100,50,0],[150,75,0],
@@ -220,7 +220,7 @@ class PokerPlayer():
             
     def defineActionPreFlop(self, pastActions):
         if self.playerType == 'random':
-            if random.uniform(0,1) <= self.strategy:
+            if random.uniform(0,1) < self.strategy:
                 self.action = 'P'
             else: 
                 self.action = 'B'
@@ -247,7 +247,7 @@ class PokerPlayer():
             
     def defineActionPostFlop(self, pastActions):
         if self.playerType == 'random':
-            if random.uniform(0,1) <= self.strategy:
+            if random.uniform(0,1) < self.strategy:
                 self.action = 'P'
             else: 
                 self.action = 'B'

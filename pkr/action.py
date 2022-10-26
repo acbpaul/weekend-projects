@@ -21,7 +21,7 @@ for reg in REG:
             if h == "PP":
                 return m
             if h in ["BB", "PBB"]:
-                return m*2
+                return m*reg
             assert False
             return 1
         
