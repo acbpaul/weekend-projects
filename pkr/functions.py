@@ -173,14 +173,14 @@ def printResults(pot, players, winner, scoreP0, scoreP1):
         i = int(winner)
         if players[i].bet < pot/2:      pot = players[i].bet*2
     
-    # print("--------------------------------------------------------------------------------")
-    # print("Pot: {}, Bets: {}x{}, P0 stack: {}, P1 stack: {}".format(pot, players[0].bet, players[1].bet,
-    #                                                                 players[0].stack, players[1].stack))
-    # if winner != 'split':
-    #     print("Winner: Player {} - {} x {} wins {}".format(winner, scoreP0[0],scoreP1[0], pot))
-    # else: 
-    #     print("Split Pot! - {} x {} each wins {}".format(scoreP0[0],scoreP1[0], int(pot/2)))
-    # print("--------------------------------------------------------------------------------")
+    print("--------------------------------------------------------------------------------")
+    print("Pot: {}, Bets: {}x{}, P0 stack: {}, P1 stack: {}".format(pot, players[0].bet, players[1].bet,
+                                                                    players[0].stack, players[1].stack))
+    if winner != 'split':
+        print("Winner: Player {} - {} x {} wins {}".format(winner, scoreP0[0],scoreP1[0], pot))
+    else: 
+        print("Split Pot! - {} x {} each wins {}".format(scoreP0[0],scoreP1[0], int(pot/2)))
+    print("--------------------------------------------------------------------------------")
     
     
 def payout(players, winner, pot):
@@ -219,12 +219,12 @@ def restart(settings, players, pot):
 
 
 def endMatch(players,pot, i, settings):
-    # print("--------------------------------------------------------------------------------")
-    # print("Pot: {}, Bets: {}x{}, P0 stack: {}, P1 stack: {}".format(pot, players[0].bet, players[1].bet,
-    #                                                                 players[0].stack, players[1].stack))
-    # print("Winner: Player {} - {} x {} wins {}".format(abs(i), players[0].cards,
-    #                                                   players[1].cards, pot))
-    # print("--------------------------------------------------------------------------------")
+    print("--------------------------------------------------------------------------------")
+    print("Pot: {}, Bets: {}x{}, P0 stack: {}, P1 stack: {}".format(pot, players[0].bet, players[1].bet,
+                                                                    players[0].stack, players[1].stack))
+    print("Winner: Player {} - {} x {} wins {}".format(abs(i), players[0].cards,
+                                                      players[1].cards, pot))
+    print("--------------------------------------------------------------------------------")
    
     # Pays the pot accordingly
     players, pot = payout(players, i, pot)        
