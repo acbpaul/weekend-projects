@@ -1,0 +1,3 @@
+django/medicSearchAdmin/settings/prd.py
+django/medicSearchAdmin/settings/acc.py
+django/medicSearchAdmin/settings/dev.py
